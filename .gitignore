@@ -1,0 +1,67 @@
+# --- Dependencies & Build ---
+node_modules/
+.npm
+package-lock.json.gzip
+
+# --- Environment Variables ---
+.env
+.env.local
+.env.*.local
+
+# --- Logs & Database ---
+*.log
+logs/
+*.pid
+*.seed
+*.db
+*.sqlite
+/dump/
+/data/
+
+# --- Testing & Coverage ---
+coverage/
+.nyc_output/
+
+# --- Debug Files ---
+debug/
+*.debug
+npm-debug.log*
+
+# --- Editor & IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+
+# --- OS Generated Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Server/Temporary Files ---
+tmp/
+temp/
+*.tmp
+*.temp
+
+# --- Optional (Sesuaikan dengan workflow Anda) ---
+# Jika menggunakan TypeScript
+*.tsbuildinfo
+
+# Jika menggunakan Nodemon
+nodemon.json
+
+# Jika menggunakan Docker
+docker-compose.yml
+Dockerfile
+
+# Jika menggunakan CI/CD
+.cache/
+dist/
+build/
