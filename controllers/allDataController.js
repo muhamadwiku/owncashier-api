@@ -29,7 +29,7 @@ exports.getAllData = async (req, res) => {
       // Lookup ke collection user
       {
         $lookup: {
-          from: "owncashier-user",
+          from: "owncashier-customer",
           localField: "numberPlates",
           foreignField: "numberPlates",
           as: "userData"
