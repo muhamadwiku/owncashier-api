@@ -9,12 +9,15 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['owner', 'branch'],
+    enum: ['admin','owner', 'branch', 'else'],
     required: true
   },
   name: {
     type: String,
-    enum: ['Baron', 'Gentan', null],
+    default: null
+  },
+  unit: {
+    type: String, //  Pusat atau Cabang
     default: null
   },
   lastLogin: Date
@@ -32,4 +35,4 @@ userSchema.methods.verifyPin = async function(pin) {
   return await bcrypt.compare(pin, this.pin);
 };
 
-module.exports = mongoose.model('User', userSchema,  "owncashier-user");
+module.exports = mongoose.model('UserV1', userSchema,  "owncashier-user-v1");

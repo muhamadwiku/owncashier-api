@@ -1,109 +1,61 @@
 const User = require('../models/user');
 
-// Helper function untuk escape regex
-const escapeRegex = (text) => {
-  return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-};
-
-// Create
+// Create User
 exports.createUser = async (req, res) => {
   try {
-    const user = new User(req.body);
-    await user.save();
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-};
-
-// // Read All
-// exports.getAllUsers = async (req, res) => {
-//   try {
-//     const page = parseInt(req.query.page) || 1;
-//     const limit = parseInt(req.query.limit) || 10;
-//     const users = await User?.find()
-//       .skip((page - 1) * limit)
-//       .limit(limit);
-
-//     res.json(users);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
-// Read All dengan Pencarian
-exports.getAllUsers = async (req, res) => {
-  try {
-    const { page = 1, limit = 10, search = '' } = req.query;
-    const parsedPage = parseInt(page);
-    const parsedLimit = parseInt(limit);
-
-    // Membuat query pencarian
-    let query = {};
-    if (search) {
-      const regex = new RegExp(escapeRegex(search), 'gi');
-      query = {
-        $or: [
-          // { customerName: regex },
-          // { email: regex },
-          { numberPlates: regex },
-          // Tambahkan field lain yang ingin dicari
-        ]
-      };
+    const { pin, role, branchName } = req.body;
+    if (!/^\d{4}$/.test(pin)) {
+      return res.status(400).json({ error: "PIN harus 4 digit angka" });
+    }
+    if (role === 'branchClient' && !['Baron', 'Gentan'].includes(branchName)) {
+      return res.status(400).json({ error: "Branch tidak valid" });
     }
 
-    const users = await User.find(query)
-      .skip((parsedPage - 1) * parsedLimit)
-      .limit(parsedLimit);
-
-    const total = await User.countDocuments(query);
-
-    res.json({
-      data: users,
-      meta: {
-        currentPage: parsedPage,
-        totalPages: Math.ceil(total / parsedLimit),
-        totalItems: total
-      }
-    });
+    const newUser = await User.create({ pin, role, branchName });
+    res.status(201).json(newUser);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(400).json({ error: err.message });
   }
 };
 
-// Read One
-exports.getUser = async (req, res) => {
+// Get All Users
+exports.getAllUsers = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
+    const users = await User.find({}).select('-pin');
+    res.json(users);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-// Update
+// Update User
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true, runValidators: true }
-    );
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    const { pin, branchName } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ error: "User tidak ditemukan" });
+
+    if (pin) {
+      if (!/^\d{4}$/.test(pin)) return res.status(400).json({ error: "PIN harus 4 digit" });
+      user.pin = pin;
+    }
+    if (branchName && user.role === 'branchClient') user.branchName = branchName;
+
+    await user.save();
     res.json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
 
-// Delete
+// Delete User
 exports.deleteUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json({ message: 'User deleted successfully' });
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ message: 'User deleted' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
+// module.exports = { createUser, getAllUsers, updateUser, deleteUser };
