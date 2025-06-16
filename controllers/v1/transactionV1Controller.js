@@ -1,5 +1,6 @@
 const Transaction = require('../../models/v1/transactionV1');
 const Product = require('../../models/v1/productV1');
+const User = require('../../models/v1/userV1');
 
 // List semua transaksi
 const listTransactions = async (req, res) => {
@@ -244,6 +245,30 @@ const getDetailTransactionByBranch = async (req, res) => {
   }
 };
 
+
+// Ambil semua unit unik dari user v1
+const getLocationUnits = async (req, res) => {
+  try {
+    // Ambil semua unit unik dari user v1
+    const units = await User.aggregate([
+      { $group: { _id: "$name" } },
+      { $project: { _id: 0, name: "$_id" } }
+    ]);
+
+    // Mapping: jika name 'AD1T' ubah jadi 'Pusat', lainnya tetap
+    let mappedUnits = units.map(unit => ({
+      name: unit.name === 'AD1T' ? 'Pusat' : unit.name
+    }));
+
+    // Sort agar 'Pusat' selalu di urutan pertama
+    mappedUnits = mappedUnits.sort((a, b) => (a.name === 'Pusat' ? -1 : b.name === 'Pusat' ? 1 : 0));
+
+    res.json(mappedUnits);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
   listTransactions,
   getTransaction,
@@ -252,5 +277,6 @@ module.exports = {
   deleteTransaction,
   getTransactionSummary,
   listTransactionByDay,
-  getDetailTransactionByBranch
+  getDetailTransactionByBranch,
+  getLocationUnits
 };
