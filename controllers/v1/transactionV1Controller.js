@@ -70,7 +70,7 @@ const listTransactionByDay = async (req, res) => {
     });
 
     // Urutkan berdasarkan tanggal naik
-    result.sort((a, b) => new Date(a.transactionDate) - new Date(b.transactionDate));
+    result.sort((a, b) => new Date(b.transactionDate) - new Date(a.transactionDate));
 
     res.json(result);
   } catch (err) {
